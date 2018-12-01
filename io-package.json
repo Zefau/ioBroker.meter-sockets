@@ -1,7 +1,7 @@
 {
     "common": {
-        "name": "roomba",
-        "version": "0.2.1",
+        "name": "meter-sockets",
+        "version": "0.1.0",
         "title": "ioBroker adapter for sockets with metering functionality",
         "desc": {
             "en": "ioBroker adapter for sockets with metering functionality",
@@ -20,7 +20,9 @@
         "extIcon": "https://raw.githubusercontent.com/Zefau/ioBroker.meter-sockets/master/admin/meter-sockets.png",
         "keywords": [
             "roomba",
-            "irobot"
+            "meter",
+            "sockets",
+            "measure"
         ],
         "readme": "https://github.com/Zefau/ioBroker.meter-sockets/blob/master/README.md",
         "loglevel": "info",
