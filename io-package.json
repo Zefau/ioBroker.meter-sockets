@@ -2,7 +2,7 @@
     "common": {
         "name": "meter-sockets",
         "version": "0.1.0",
-        "title": "ioBroker adapter for sockets with metering functionality",
+        "title": "Metering Sockets",
         "desc": {
             "en": "ioBroker adapter for sockets with metering functionality",
             "de": "ioBroker adapter für Steckdosen mit Zählerfunktion"
