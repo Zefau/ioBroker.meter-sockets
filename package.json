@@ -16,8 +16,9 @@
   "license": "MIT",
   "keywords": [
     "ioBroker",
-    "roomba",
-    "irobot"
+    "meter",
+    "sockets",
+    "measure"
   ],
   "repository": {
     "type": "git",
