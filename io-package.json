@@ -1,0 +1,43 @@
+{
+    "common": {
+        "name": "roomba",
+        "version": "0.2.1",
+        "title": "ioBroker adapter for sockets with metering functionality",
+        "desc": {
+            "en": "ioBroker adapter for sockets with metering functionality",
+            "de": "ioBroker adapter für Steckdosen mit Zählerfunktion"
+        },
+        "news": {
+            "0.1.0": {
+                "en": "initial checkin",
+                "de": "Erste version",
+                "ru": "первая версия"
+            }
+        },
+        "platform": "Javascript/Node.js",
+        "mode": "daemon",
+        "icon": "meter-sockets.png",
+        "extIcon": "https://raw.githubusercontent.com/Zefau/ioBroker.meter-sockets/master/admin/meter-sockets.png",
+        "keywords": [
+            "roomba",
+            "irobot"
+        ],
+        "readme": "https://github.com/Zefau/ioBroker.meter-sockets/blob/master/README.md",
+        "loglevel": "info",
+        "enabled": true,
+        "messagebox": true,
+        "subscribe": "messagebox",
+        "type": "energy",
+        "authors": [
+            {
+                "name": "Zefau",
+                "email": "zefau@mailbox.org"
+            }
+        ]
+    },
+    "native": {
+    },
+    "objects": [],
+    "instanceObjects": [
+    ]
+}
