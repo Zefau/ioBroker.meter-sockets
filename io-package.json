@@ -19,7 +19,7 @@
         "icon": "meter-sockets.png",
         "extIcon": "https://raw.githubusercontent.com/Zefau/ioBroker.meter-sockets/master/admin/meter-sockets.png",
         "keywords": [
-            "roomba",
+            "ioBroker",
             "meter",
             "sockets",
             "measure"
