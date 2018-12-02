@@ -1,0 +1,149 @@
+<html>
+<head>
+	<link rel="stylesheet" type="text/css" href="../../css/adapter.css"/>
+	<link rel="stylesheet" type="text/css" href="../../lib/css/materialize.css">
+
+	<script type="text/javascript" src="../../lib/js/jquery-3.2.1.min.js"></script>
+	<script type="text/javascript" src="../../socket.io/socket.io.js"></script>
+
+	<script type="text/javascript" src="../../js/translate.js"></script>
+	<script type="text/javascript" src="../../lib/js/materialize.js"></script>
+	<script type="text/javascript" src="../../js/adapter-settings.js"></script>
+	<script type="text/javascript">
+	<!--
+	// load
+	function load(settings, onChange)
+	{
+		devices = settings.devices || [];
+		values2table('devices', devices, onChange);
+		_load(settings, onChange);
+	}
+	
+	// save
+	function save(callback)
+	{
+		var obj = {devices: table2values('devices')};
+		_save(callback, obj);
+	}
+	
+	// page loaded
+	$(window).on('load', function()
+	{
+		//M.Tabs.init($('.tabs'));
+		
+	});
+	// -->
+	</script>
+	<script type="text/javascript" src="admin.js"></script>
+	<script type="text/javascript" src="words.js"></script>
+	<style>
+		.m select {display: block !important}
+		.hidden {display: none}
+		.box {
+			padding-top: 5px !important;
+			margin: 0 !important;
+			background-color: #fff; /*#acd8fa*/
+		}
+		
+		#log {
+			background-color: #fff;
+			padding: 0 20px;
+		}
+		.log.error {color: #a00}
+		.log.success {color: #0a0}
+		.log.info {color: #00a}
+		
+		img {margin: 5px}
+		a.active {font-weight: bold}
+		p.title {margin-bottom: 0}
+		p.subtitle {padding: 0 .75rem}
+		p.errorMessage {
+			padding: 0 5px;
+			margin: 0;
+			color: #c00;
+		}
+		
+		.table-button-add {15px 5px 10px 5px}
+		a.togglePassword:hover {text-decoration: underline}
+	</style>
+</head>
+<body>
+
+
+<div class="m adapter-container">
+
+	<div class="row">
+		
+		<!-- TABS -->
+		<div class="col s12">
+			<ul class="tabs">
+				<li class="tab col s3"><a class="active translate" href="#tab-devices">tab_devices</a></li>
+				<!-- <li class="tab col s3"><a class="translate" href="#tab-config">tab_config</a></li> -->
+				<li class="tab col s3"><a class="translate" href="#tab-info">tab_info</a></li>
+			</ul>
+		</div>
+		
+		<!-- DEVICES -->
+		<div id="tab-devices" class="col s12">
+		
+            <div class="col s12" id="devices">
+                <a class="btn-floating waves-effect waves-light blue table-button-add"><i class="material-icons">add</i></a>
+                <div class="table-values-div">
+                    <table class="table-values">
+                        <thead>
+							<tr>
+								<th data-name="name"		style="width: 30%" class="translate">name</th>
+								<th data-name="state"		style="width: 30%" class="translate">state</th>
+								<th data-name="threshold"	style="width: 10%" class="translate">threshold</th>
+								<th data-name="active"  	style="width: 70px" data-style="width: 70px" data-type="checkbox" class="translate">enabled</th>
+								<th data-buttons="delete up down" style="width: 120px"></th>
+							</tr>
+                        </thead>
+                    </table>
+                </div>
+			</div>
+			
+		</div>
+		
+		<!-- CONFIG -->
+		<!--
+		<div id="tab-config" class="col s12">
+			
+		</div>
+		-->
+		
+		<!-- INFO -->
+		<div id="tab-info" class="col s12">
+			
+			<div class="row">
+				<div class="col s12 m12 page">
+					<div class="row box">
+					
+						<div class="col s12 m12">
+							<a target="_blank" href="https://www.npmjs.com/package/iobroker.meter-sockets">
+								<img src="https://camo.githubusercontent.com/2fbdc620a8df7a0146798ef0f92f97eef3575d2b/68747470733a2f2f6e6f6465692e636f2f6e706d2f696f62726f6b65722e6d657465722d736f636b6574732e706e673f646f776e6c6f6164733d74727565" />
+							</a>
+							<br />
+							
+							<img src="https://camo.githubusercontent.com/92f178e53e820292e8f548f709a60392bfc7bf58/687474703a2f2f696d672e736869656c64732e696f2f6e706d2f762f696f62726f6b65722e6d657465722d736f636b6574732e737667" />
+							<img src="https://camo.githubusercontent.com/624517ae6b9153f50ea50a11a58e3d870b7864c4/68747470733a2f2f696d672e736869656c64732e696f2f6e706d2f646d2f696f62726f6b65722e6d657465722d736f636b6574732e737667" />
+							<br />
+							
+							<ul>
+								<li>For smart home / alexa integration please <a target="_blank" href="https://github.com/Zefau/ioBroker.meter-sockets#smart-home--alexa-integration-using-iobrokerjavascript">see ideas on Github</a>.</li>
+								<li>If you experience issues please <a target="_blank" href="https://github.com/Zefau/ioBroker.meter-sockets/issues">submit a ticket on Github</a>.</li>
+							</ul>
+						</div>
+						
+					</div>
+					
+				</div>
+			</div>
+		</div>
+		
+	</div>
+	
+</div>
+
+</body>
+</html>
