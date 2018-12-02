@@ -48,8 +48,14 @@ adapter.on('unload', function(callback)
  */
 adapter.on('ready', function()
 {
-	adapter.log.debug(JSON.stringify(adapter.config.devices));
+	// verify devices are defined
+	if (adapter.config.devices === undefined || adapter.config.devices.length === 0)
+	{
+		adapter.log.warn('No devices to monitor have been entered. Go to configuration and enter devices.');
+		return;
+	}
 	
+	// subscribe to devices
 	adapter.config.devices.forEach(function(device)
 	{
 		if (device.state !== '')
