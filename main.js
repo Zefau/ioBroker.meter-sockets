@@ -15,8 +15,10 @@ const Library = require(__dirname + '/library.js');
 var library = new Library(adapter);
 var nodes = [
 	{'node': 'device', 'description': 'Device name', 'role': 'text'},
-	{'node': 'jobs', 'description': 'Completed jobs', 'role': 'text'},
+	{'node': 'jobs', 'description': 'Completed jobs', 'role': 'list'},
 	{'node': '_running', 'description': 'Boolean if event is currently running', 'role': 'state', 'type': 'boolean'},
+	{'node': 'state', 'description': 'State of device to meter', 'role': 'text'},
+	{'node': 'enabled', 'description': 'Boolean if device metering is enabled', 'role': 'state', 'type': 'boolean'},
 	{'node': 'status.started', 'description': 'Timestamp the current event has started', 'role': 'value'},
 	{'node': 'status.startedDateTime', 'description': 'Datetime the current event has started', 'role': 'text'},
 	{'node': 'status.finished', 'description': 'Timestamp the last event has finished', 'role': 'value'},
@@ -59,14 +61,19 @@ adapter.on('ready', function()
 	}
 	
 	// subscribe to devices
-	adapter.config.devices.forEach(function(device)
+	var devices = [];
+	adapter.config.devices.forEach(function(device, i)
 	{
 		if (device.state !== '')
 		{
-			createDevice(device);
+			device.id = i;
+			devices.push(createDevice(device));
 			adapter.subscribeForeignStates(device.state);
 		}
 	});
+	
+	// list devices
+	library.set({node: '_devices', description: 'List of devices', 'role': 'list'}, JSON.stringify(devices));
 });
 
 /*
@@ -77,7 +84,7 @@ adapter.on('stateChange', function(state, payload)
 {
 	//adapter.log.debug('Changed state of ' + state + ': ' + JSON.stringify(payload));
 	
-	var value = Math.floor(payload.val);
+	var value = Math.floor(payload.val*100)/100;
 	var average = 0;
 	var max = 12;
 	
@@ -91,8 +98,7 @@ adapter.on('stateChange', function(state, payload)
 		device = obj.common['meter-sockets'];
 		
 		// skip if device is disabled
-		if (device.active !== true)
-			return;
+		if (device.active !== true) return;
 		
 		// get current status
 		adapter.getState(device.id + '._running', function(err, status)
@@ -100,9 +106,13 @@ adapter.on('stateChange', function(state, payload)
 			// error
 			if (err || !status) return;
 			
-			// set states
-			running = !!status.val;
+			// set data
 			library._setValue(device.id + '.device', device.name);
+			library._setValue(device.id + '.state', device.state);
+			library._setValue(device.id + '.enabled', device.active);
+			
+			// set status
+			running = !!status.val;
 			library._setValue(device.id + '._running', running);
 			
 			// get metered data
@@ -121,6 +131,9 @@ adapter.on('stateChange', function(state, payload)
 				average = getAverage(metered);
 				library._setValue(device.id + '.status.average', average);
 				
+				// add up total
+				adapter.getState(device.id + '.status.total', function(err, obj) {library._setValue(device.id + '.status.total', obj !== undefined ? parseInt(obj.val)+value : 0)});
+				
 				// set device running
 				if (running === false && average > device.threshold)
 				{
@@ -132,8 +145,20 @@ adapter.on('stateChange', function(state, payload)
 					library._setValue(device.id + '.status.finished', 0);
 					library._setValue(device.id + '.status.finishedDateTime', '');
 					
-					// add up total
-					adapter.getState(device.id + '.status.total', function(err, obj) {library._setValue(device.id + '.status.total', obj !== undefined ? obj.val+value : 0)});
+					// voice output
+					if (device.alexa !== undefined && device.alexa !== '' && adapter.config.alexaStarted !== '')
+						adapter.setForeignState('alexa2.0.Echo-Devices.' + device.alexa + '.Commands.speak', adapter.config.alexaStarted.replace(/%device%/gi, device.name));
+					
+					// message output
+					if (device.telegram !== undefined && device.telegram !== '' && adapter.config.telegramStarted !== '')
+					{
+						var config = {
+							text: adapter.config.telegramStarted.replace(/%device%/gi, device.name),
+							//parse_mode: 'HTML'
+						};
+						
+						adapter.sendTo('telegram.0', device.telegram !== 'ALL' ? Object.assign({user: device.telegram}, config) : config);
+					}
 				}
 				
 				// set device finished
@@ -147,10 +172,26 @@ adapter.on('stateChange', function(state, payload)
 					library._setValue(device.id + '.status.finishedDateTime', library.getDateTime(endTime));
 					adapter.extendObject(device.id + '.status.average', {common: {metered: JSON.stringify([])}});
 					
-					// save job
+					// voice output
+					if (device.alexa !== undefined && device.alexa !== '' && adapter.config.alexaFinished !== '')
+						adapter.setForeignState('alexa2.0.Echo-Devices.' + device.alexa + '.Commands.speak', adapter.config.alexaFinished.replace(/%device%/gi, device.name));
+					
+					// message output
+					if (device.telegram !== undefined && device.telegram !== '' && adapter.config.telegramFinished !== '')
+					{
+						var config = {
+							text: adapter.config.telegramFinished.replace(/%device%/gi, device.name),
+							//parse_mode: 'HTML'
+						};
+						
+						adapter.sendTo('telegram.0', device.telegram !== 'ALL' ? Object.assign({user: device.telegram}, config) : config);
+					}
+					
+					// save job & send out notifications
 					var jobs = "";
 					adapter.getState(device.id + '.jobs', function(err, obj)
 					{
+						// log job to history
 						jobs = JSON.parse(obj.val || '[]');
 						adapter.getState(device.id + '.status.total', function(err, obj)
 						{
@@ -158,7 +199,6 @@ adapter.on('stateChange', function(state, payload)
 							adapter.getState(device.id + '.status.started', function(err, obj)
 							{
 								var startTime = obj.val || 0;
-						
 								jobs.push({
 									'total': total,
 									'runtime': startTime-Math.round(endTime/1000),
@@ -189,20 +229,27 @@ adapter.on('stateChange', function(state, payload)
 function createDevice(device)
 {
 	// create states
-	device.id = device.name.toLowerCase().replace(/ /g, '_');
-	adapter.createDevice(device.id, {name: 'Device ' + device.name}, {}, function()
+	device.id = device.id === undefined ? device.name.toLowerCase().replace(/ /g, '_') : device.id.toString();
+	adapter.createDevice(device.id, {}, {}, function()
 	{
+		// create state
 		nodes.forEach(function(node)
 		{
 			library.set({node: device.id + '.' + node.node, description: node.description, role: node.role, type: node.type}, '');
 		});
+		
+		// change name
+		adapter.extendObject(device.id, {common: {name: 'Device ' + device.name}});
+		
+		
+		// write log
+		adapter.log.info('Created device ' + device.name + ' (' + device.state + ').');
+		
+		// extend monitored state
+		adapter.extendForeignObject(device.state, {common: {'meter-sockets': device}});
 	});
 	
-	// extend monitored state
-	adapter.extendForeignObject(device.state, {common: {'meter-sockets': device}});
-	
-	// write log
-	adapter.log.info('Created device ' + device.name + ' (' + device.state + ').');
+	return device;
 }
 
 
