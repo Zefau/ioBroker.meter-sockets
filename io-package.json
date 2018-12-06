@@ -26,6 +26,7 @@
         ],
         "readme": "https://github.com/Zefau/ioBroker.meter-sockets/blob/master/README.md",
         "loglevel": "info",
+        "materialize": true,
         "enabled": true,
         "messagebox": true,
         "subscribe": "messagebox",
