@@ -9,8 +9,14 @@ ioBroker adapter to measure / detect the usage of devices connected to metering 
 [![NPM](https://nodei.co/npm/iobroker.meter-sockets.png?downloads=true)](https://nodei.co/npm/iobroker.meter-sockets/)
 
 
-## Smart Home / Alexa integration using ioBroker.javascript
-Will follow..
+## Usage
+Add a device in the adapter configuration by using the plus button on the top left. This adds a new entry to the table and allows you to enter the following information:
+- **Name**: tbd
+- **State to monitor**: tbd
+- **Threshold**: tbd
+- **Telegram Notification**: tbd
+- **Alexa Voice Output**: tbd
+- **Enabled**: Device will be added with all states but device usage will not be metered.
 
 
 ## Changelog
