@@ -15,6 +15,11 @@ Will follow..
 
 ## Changelog
 
+### 0.2.0 (2018-12-06)
+- (zefau) Alexa and Telegram integration
+- (zefau) added more states, e.g. jobs (list of completed jobs), total (total consumption of a run)
+- (zefau) changed device ID from device name to index (so device can be renamed without breaking)
+
 ### 0.1.0 (2018-12-02)
 - (zefau) initial version
 
