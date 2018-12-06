@@ -1,13 +1,17 @@
 {
     "common": {
         "name": "meter-sockets",
-        "version": "0.1.0",
+        "version": "0.2.0",
         "title": "Metering Sockets",
         "desc": {
             "en": "ioBroker adapter for sockets with metering functionality",
             "de": "ioBroker adapter für Steckdosen mit Zählerfunktion"
         },
         "news": {
+            "0.2.0": {
+                "en": "Alexa and Telegram integration",
+                "de": "Alexa and Telegram Integration"
+            }
             "0.1.0": {
                 "en": "initial checkin",
                 "de": "Erste version",
