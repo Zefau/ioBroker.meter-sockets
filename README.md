@@ -9,14 +9,18 @@ ioBroker adapter to measure / detect the usage of devices connected to metering 
 [![NPM](https://nodei.co/npm/iobroker.meter-sockets.png?downloads=true)](https://nodei.co/npm/iobroker.meter-sockets/)
 
 
-## Usage
+## Usage & Configuration
+### Add devices
 Add a device in the adapter configuration by using the plus button on the top left. This adds a new entry to the table and allows you to enter the following information:
-- **Name**: tbd
+- **Name**: Name of the device, which will be used in the Alexa voice output or send via Telegram.
 - **State to monitor**: tbd
 - **Threshold**: tbd
 - **Telegram Notification**: tbd
 - **Alexa Voice Output**: tbd
 - **Enabled**: Device will be added with all states but device usage will not be metered.
+
+### Confugration
+tbd
 
 
 ## Changelog
