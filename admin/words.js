@@ -5,9 +5,9 @@ systemDictionary = {
 		"en": "Devices",
 		"de": "Geräte"
 	},
-	"tab_config": {
-		"en": "Configuration",
-		"de": "Einstellungen"
+	"tab_alexa": {
+		"en": "Alexa integration",
+		"de": "Alexa Integration"
 	},
 	"tab_info": {
 		"en": "Information",
