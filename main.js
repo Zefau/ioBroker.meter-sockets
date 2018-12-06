@@ -15,12 +15,15 @@ const Library = require(__dirname + '/library.js');
 var library = new Library(adapter);
 var nodes = [
 	{'node': 'device', 'description': 'Device name', 'role': 'text'},
-	{'node': 'running', 'description': 'Boolean if event is currently running', 'role': 'state', 'type': 'boolean'},
-	{'node': 'started', 'description': 'Timestamp the current event has started', 'role': 'value'},
-	{'node': 'startedDateTime', 'description': 'Datetime the current event has started', 'role': 'text'},
-	{'node': 'finished', 'description': 'Timestamp the last event has finished', 'role': 'value'},
-	{'node': 'finishedDateTime', 'description': 'Datetime the last event has finished', 'role': 'text'},
-	{'node': 'average', 'description': 'Current average usage', 'role': 'value'},
+	{'node': 'jobs', 'description': 'Completed jobs', 'role': 'text'},
+	{'node': '_running', 'description': 'Boolean if event is currently running', 'role': 'state', 'type': 'boolean'},
+	{'node': 'status.started', 'description': 'Timestamp the current event has started', 'role': 'value'},
+	{'node': 'status.startedDateTime', 'description': 'Datetime the current event has started', 'role': 'text'},
+	{'node': 'status.finished', 'description': 'Timestamp the last event has finished', 'role': 'value'},
+	{'node': 'status.finishedDateTime', 'description': 'Datetime the last event has finished', 'role': 'text'},
+	{'node': 'status.average', 'description': 'Current average usage', 'role': 'value'},
+	{'node': 'status.total', 'description': 'Total consumption on current run', 'role': 'value'},
+	{'node': 'status.threshold', 'description': 'Defined threshold of device', 'role': 'value'},
 ];
 
 
@@ -72,6 +75,8 @@ adapter.on('ready', function()
  */
 adapter.on('stateChange', function(state, payload)
 {
+	//adapter.log.debug('Changed state of ' + state + ': ' + JSON.stringify(payload));
+	
 	var value = Math.floor(payload.val);
 	var average = 0;
 	var max = 12;
@@ -79,8 +84,8 @@ adapter.on('stateChange', function(state, payload)
 	var device, running, metered, average;
 	adapter.getForeignObject(state, function(err, obj)
 	{
-		if (err)
-			return;
+		// error
+		if (err) return;
 		
 		// get device
 		device = obj.common['meter-sockets'];
@@ -90,15 +95,18 @@ adapter.on('stateChange', function(state, payload)
 			return;
 		
 		// get current status
-		adapter.getState(device.id + '.running', function(err, status)
+		adapter.getState(device.id + '._running', function(err, status)
 		{
+			// error
+			if (err || !status) return;
+			
 			// set states
 			running = !!status.val;
 			library._setValue(device.id + '.device', device.name);
-			library._setValue(device.id + '.running', running);
+			library._setValue(device.id + '._running', running);
 			
 			// get metered data
-			adapter.getObject(device.id + '.average', function(err, obj)
+			adapter.getObject(device.id + '.status.average', function(err, obj)
 			{
 				// get metered data
 				metered = obj.common.metered !== undefined ? JSON.parse(obj.common.metered) : [];
@@ -106,32 +114,64 @@ adapter.on('stateChange', function(state, payload)
 				// modify metered data and save
 				metered.push(value);
 				if (metered.length > max) metered.shift(); 
-				adapter.extendObject(device.id + '.average', {common: {metered: JSON.stringify(metered)}});
+				adapter.extendObject(device.id + '.status.average', {common: {metered: JSON.stringify(metered)}});
+				library._setValue(device.id + '.status.threshold', device.threshold);
 				
 				// get average
 				average = getAverage(metered);
-				library._setValue(device.id + '.average', average);
+				library._setValue(device.id + '.status.average', average);
 				
 				// set device running
 				if (running === false && average > device.threshold)
 				{
 					adapter.log.info('Device ' + device.name + ' has been detected started.');
-					library._setValue(device.id + '.running', true);
-					library._setValue(device.id + '.started', Math.round(Date.now()/1000));
-					library._setValue(device.id + '.startedDateTime', library.getDateTime(Date.now()));
+					library._setValue(device.id + '._running', true);
+					library._setValue(device.id + '.status.started', Math.round(Date.now()/1000));
+					library._setValue(device.id + '.status.startedDateTime', library.getDateTime(Date.now()));
 					
-					library._setValue(device.id + '.finished', 0);
-					library._setValue(device.id + '.finishedDateTime', '');
+					library._setValue(device.id + '.status.finished', 0);
+					library._setValue(device.id + '.status.finishedDateTime', '');
+					
+					// add up total
+					adapter.getState(device.id + '.status.total', function(err, obj) {library._setValue(device.id + '.status.total', obj !== undefined ? obj.val+value : 0)});
 				}
 				
 				// set device finished
 				else if (running === true && average <= device.threshold)
 				{
 					adapter.log.info('Device ' + device.name + ' has been detected finished.');
-					library._setValue(device.id + '.running', false);
-					library._setValue(device.id + '.finished', Math.round(Date.now()/1000));
-					library._setValue(device.id + '.finishedDateTime', library.getDateTime(Date.now()));
-					adapter.extendObject(device.id + '.average', {common: {metered: JSON.stringify([])}});
+					var endTime = Date.now();
+					
+					library._setValue(device.id + '._running', false);
+					library._setValue(device.id + '.status.finished', Math.round(endTime/1000));
+					library._setValue(device.id + '.status.finishedDateTime', library.getDateTime(endTime));
+					adapter.extendObject(device.id + '.status.average', {common: {metered: JSON.stringify([])}});
+					
+					// save job
+					var jobs = "";
+					adapter.getState(device.id + '.jobs', function(err, obj)
+					{
+						jobs = JSON.parse(obj.val || '[]');
+						adapter.getState(device.id + '.status.total', function(err, obj)
+						{
+							var total = obj.val || 0;
+							adapter.getState(device.id + '.status.started', function(err, obj)
+							{
+								var startTime = obj.val || 0;
+						
+								jobs.push({
+									'total': total,
+									'runtime': startTime-Math.round(endTime/1000),
+									'started': startTime,
+									'startedDateTime': library.getDateTime(startTime*1000),
+									'finished': Math.round(endTime/1000),
+									'finishedDateTime': library.getDateTime(endTime),
+								});
+								
+								library._setValue(device.id + '.jobs', JSON.stringify(jobs));
+							});
+						});
+					});
 				}
 			});
 		});
