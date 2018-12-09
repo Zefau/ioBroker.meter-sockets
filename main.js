@@ -135,7 +135,7 @@ adapter.on('ready', function()
 					var node = device.id + state;
 					adapter.getState(node, function(err, value)
 					{
-						total = parseFloat(value.val.toFixed(3)) + current;
+						total = value !== null && value.val !== null ? parseFloat(value.val.toFixed(3)) + current : current;
 						adapter.log.silly('Writing power usage of device ' + device.name + ' (+' + current + ' = ' + total + ') to history state -' + state + '-.');
 						
 						library.set(
