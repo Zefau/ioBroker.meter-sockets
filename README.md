@@ -25,6 +25,9 @@ tbd
 
 ## Changelog
 
+### 0.3.0 (2018-12-09)
+- (zefau) added history for power consumption (for years, quarters, months and days)
+
 ### 0.2.0 (2018-12-06)
 - (zefau) Alexa and Telegram integration
 - (zefau) added more states, e.g. jobs (list of completed jobs), total (total consumption of a run)
