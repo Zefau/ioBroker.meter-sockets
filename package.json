@@ -1,6 +1,6 @@
 {
   "name": "iobroker.meter-sockets",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Measure your metering sockets and get notifications and statistics",
   "author": {
     "name": "zefau",
@@ -18,7 +18,9 @@
     "ioBroker",
     "meter",
     "sockets",
-    "measure"
+    "measure",
+    "consumption",
+    "power"
   ],
   "repository": {
     "type": "git",
