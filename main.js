@@ -170,7 +170,7 @@ function meter(device, settings)
 	var max = settings.max || 6;
 	var average = 0;
 	
-	var running, metered, average;
+	var running, run, metered, average;
 	adapter.getForeignState(device.state, function(err, payload)
 	{
 		// error
@@ -203,12 +203,13 @@ function meter(device, settings)
 			adapter.getObject(device.id + '.usage._average', function(err, obj)
 			{
 				// get metered data
-				metered = obj.common.metered !== undefined ? JSON.parse(obj.common.metered) : [];
+				run = obj.common.run !== undefined ? JSON.parse(obj.common.run) : [];
+				run.push(value);
 				
 				// modify metered data and save
-				metered.push(value);
-				if (metered.length > max) metered.shift(); 
-				adapter.extendObject(device.id + '.usage._average', {common: {metered: JSON.stringify(metered)}});
+				metered = run.slice(0);
+				metered.splice(0, metered.length-max);
+				adapter.extendObject(device.id + '.usage._average', {common: {run: JSON.stringify(run), metered: JSON.stringify(metered)}});
 				
 				// get average
 				average = getAverage(metered);
@@ -224,6 +225,8 @@ function meter(device, settings)
 					
 					library._setValue(device.id + '.job.finished', 0);
 					library._setValue(device.id + '.job.finishedDateTime', '');
+					
+					adapter.extendObject(device.id + '.usage._average', {common: {run: JSON.stringify(metered), metered: JSON.stringify(metered)}});
 					
 					// voice output
 					if (device.alexa !== undefined && device.alexa !== '' && adapter.config.alexaStarted !== '')
@@ -250,7 +253,7 @@ function meter(device, settings)
 					library._setValue(device.id + '._running', false);
 					library._setValue(device.id + '.job.finished', Math.round(endTime/1000));
 					library._setValue(device.id + '.job.finishedDateTime', library.getDateTime(endTime));
-					adapter.extendObject(device.id + '.usage._average', {common: {metered: JSON.stringify([])}});
+					adapter.extendObject(device.id + '.usage._average', {common: {run: JSON.stringify([]), metered: JSON.stringify([])}});
 					
 					// voice output
 					if (device.alexa !== undefined && device.alexa !== '' && adapter.config.alexaFinished !== '')
@@ -283,6 +286,7 @@ function meter(device, settings)
 								var startTime = obj.val || 0;
 								jobs.push({
 									'total': total,
+									'run': JSON.stringify(run),
 									'runtime': Math.round(endTime/1000)-startTime,
 									'started': startTime,
 									'startedDateTime': library.getDateTime(startTime*1000),
