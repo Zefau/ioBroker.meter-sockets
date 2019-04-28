@@ -2,6 +2,7 @@
 # ioBroker.meter-sockets
 ioBroker adapter to measure / detect the usage of devices connected to metering sockets. Based on a threshold (per device) a state will be set to indicate whether the connected device to the socket is running.
 
+![Number of Installations](http://iobroker.live/badges/meter-sockets-installed.svg)
 [![NPM version](http://img.shields.io/npm/v/iobroker.meter-sockets.svg)](https://www.npmjs.com/package/iobroker.meter-sockets)
 [![Travis CI](https://travis-ci.org/Zefau/ioBroker.meter-sockets.svg?branch=master)](https://travis-ci.org/Zefau/ioBroker.meter-sockets)
 [![Downloads](https://img.shields.io/npm/dm/iobroker.meter-sockets.svg)](https://www.npmjs.com/package/iobroker.meter-sockets)
