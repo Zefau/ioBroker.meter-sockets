@@ -7,7 +7,7 @@ ioBroker adapter to measure / detect the usage of devices connected to metering 
 [![Travis CI](https://travis-ci.org/Zefau/ioBroker.meter-sockets.svg?branch=master)](https://travis-ci.org/Zefau/ioBroker.meter-sockets)
 [![Downloads](https://img.shields.io/npm/dm/iobroker.meter-sockets.svg)](https://www.npmjs.com/package/iobroker.meter-sockets)
 
-[![NPM](https://nodei.co/npm/iobroker.meter-sockets.png?downloads=true)](https://nodei.co/npm/iobroker.meter-sockets/)
+[![NPM](https://nodei.co/npm/iobroker.meter-sockets.png?downloads=true)](https://nodei.co/npm/iobroker.meter-sockets/) [![Greenkeeper badge](https://badges.greenkeeper.io/Zefau/ioBroker.meter-sockets.svg)](https://greenkeeper.io/)
 
 
 ## Usage & Configuration
